@@ -2,7 +2,13 @@ import {Fragment, memo, useMemo, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {isEqualDate} from './isEqualDate';
 import Popover from './Popover'
-import {StyledForm} from './StyledForm'
+import {StyledForm} from './StyledForm';
+const defaultEvent = {
+    title: '',
+    description: '',
+    startDate: new Date().toISOString().slice(0, 16),
+    endDate: new Date().toISOString().slice(0, 16)
+}
 const StyledDay = styled.div`
     padding: 8px;
     text-align: right;
@@ -58,12 +64,7 @@ const StyledDay = styled.div`
 const EventView = memo(({title = '', description = '', startDate, endDate, id, events = [], onChangeEvents}) => {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
-    const [edit, setEdit] = useState({
-        title: '',
-        description: '',
-        startDate: '',
-        endDate: ''
-    });
+    const [edit, setEdit] = useState(defaultEvent);
     const editEvent =e => {
         e.preventDefault();
         const newEvents = events.map(event => {
@@ -193,12 +194,7 @@ const EventView = memo(({title = '', description = '', startDate, endDate, id, e
 const DateView= memo(({date = new Date(), isOffset= false, events = [], onChangeEvents, width = '' } ) => {
     const ref= useRef(null);
     const [open, setOpen] = useState(false);
-    const [event, setEvent] = useState({
-        title: '',
-        description: '',
-        startDate: new Date().toISOString().slice(0, 16),
-        endDate: new Date().toISOString().slice(0, 16)
-    });
+    const [event, setEvent] = useState(defaultEvent);
     const isCurrent= useMemo(() => {
         const currentDate = new Date()
         const isCurrent = !isOffset && isEqualDate(date, currentDate)
@@ -221,7 +217,7 @@ const DateView= memo(({date = new Date(), isOffset= false, events = [], onChange
     }, [events, date]);
     const addEvent =(e) => {
         e.preventDefault();
-        const newEvents = [...events, event];
+        const newEvents = [...events, {...event, id: `id_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`}];
         onChangeEvents(newEvents.map(event => {
             return {
                 ...event,
@@ -237,7 +233,8 @@ const DateView= memo(({date = new Date(), isOffset= false, events = [], onChange
             }
         }));
         localStorage.setItem('events', strigEvents);
-        setOpen(false)
+        setOpen(false);
+        setEvent(defaultEvent)
     }
     return <Fragment>
         <StyledDay
