@@ -7,7 +7,7 @@ const defaultEvent = {
     title: '',
     description: '',
     startDate: new Date().toISOString().slice(0, 16),
-    endDate: new Date().toISOString().slice(0, 16)
+    endDate: new Date().toISOString().slice(0, 16),
 }
 const StyledDay = styled.div`
     padding: 8px;
@@ -17,12 +17,10 @@ const StyledDay = styled.div`
     color: #000000;
     font-size: 18px;
     font-weight: 500;
-    cursor: pointer;
     height: 100%;
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     width: calc(100% / 7 - 17px);
-    cursor: pointer;
     &[data-current='true'] {
         & .date-value {
             background-color: #59ff00ff;
@@ -33,6 +31,9 @@ const StyledDay = styled.div`
             white-space: nowrap;
             text-overflow: ellipsis;
         }
+    }
+    &[data-enabled='true'] {
+        cursor: pointer;
     }
     & .events-list {
         width: 100%;
@@ -243,7 +244,16 @@ const DateView= memo(({date = new Date(), isOffset= false, events = [], onChange
             data-enabled={!isOffset}
             style={{width}}
             ref={ref}
-            onClick={() => setOpen(true)}
+            onClick={() => {
+                if(!isOffset) {
+                    setOpen(true);
+                    setEvent({
+                        ...defaultEvent,
+                        startDate: new Date(date).toISOString().slice(0, 16),
+                        endDate: new Date(date).toISOString().slice(0, 16)
+                    })
+                }
+            }}
             >
             {!isOffset && <Fragment>
                 <span className='date-value'>{date.getDate()}</span>
